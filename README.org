@@ -5,12 +5,21 @@
 An easy to use Common Lisp binding for the Libre Translate service.
 
 ** Using
-A very simple example:
+
+The easiest way to use this package is with the Docker configuration from [[https://github.com/LibreTranslate/LibreTranslate][Libre Translate]].
+
+Clone the Libre Translate repo and start the service using:
+
+#+begin_src shell
+  ./run.sh --port 5001
+#+end_src
+
+Once the service has downloaded all of the language files, use the library to translate text:
 #+begin_src lisp :results value
-  (ql:quickload :cl-libre-translate)
-  (use-package :st-json)
-  (let ((result (lt:translate "This is a test!" :source "en" :target "es")))
-    (st-json:getjso "translatedText" result))
+    (ql:quickload :cl-libre-translate)
+    (use-package :st-json)
+    (let ((result (lt:translate "This is a test!" :source "en" :target "es")))
+      (st-json:getjso "translatedText" result))
 #+end_src
 
 #+RESULTS:
@@ -41,12 +50,13 @@ are optional.  The default is to not use an API key and to connect to "http://lo
   }
 #+end_src
 
+** API Keys Untested
+So far I've only used this package against a local Docker service, without API keys.  I have little use
+for the API keys right now, so I don't plan to test them.  If they are not working, please let me know,
+and I'll try to fix them.  A PR fixing the problem would also be welcome.
+
 ** License
 ISC
 
 Copyright (c) 2024 Jeremiah LaRocco <jeremiah_larocco@fastmail.com>
 
-
-
-* TODO
-** TODO Test use of API keys.
