@@ -26,11 +26,11 @@ Only \"url\" and \"api_key\" fields are currently supported.~
 Should be JSON like {\"url\": \"http://libretranslate.com\", \"api_key\": \"....\"}")
 
 (defparameter *libre-translate-url* (if (uiop:file-exists-p *config-file*)
-                            (with-input-from-file (ins *config-file*)
-                              (quri:parse-uri (getjso "url" (read-json ins))))
-                            (quri:make-uri :scheme "http"
-                                           :host "localhost"
-                                           :port 5001))
+                                        (with-input-from-file (ins *config-file*)
+                                          (quri:parse-uri (getjso "url" (read-json ins))))
+                                        (quri:make-uri :scheme "http"
+                                                       :host "localhost"
+                                                       :port 5001))
   "The URI of Libre Translate host that will be used.")
 
 (defparameter *api-key* (if (uiop:file-exists-p *config-file*)
@@ -64,7 +64,7 @@ content can be JSON or an alist."
                            (method :get)
                            content)
   "Low level function to make an API request."
-  
+
   (let* ((the-url (quri:make-uri :defaults *libre-translate-url*
                                  :path api-path))
          (content-type-headers (typecase content
@@ -83,7 +83,7 @@ content can be JSON or an alist."
                                     :content real-content
                                     :headers content-type-headers
                                     :verbose *verbose-http-stream*)))
-         
+
          (json-result (read-json-from-string raw-result
                                              ;; (typecase raw-result
                                              ;;   (string raw-result)
