@@ -38,8 +38,8 @@ Parameters (and a config file) can be used to configure the Libre Translate serv
 : ¡Esto es una prueba!
 
 ** Config file
-Config settings can also be read from a JSON file pointed to by the `lt:*config-file*` parameter.  The
-default location is in the package directory.  Only "url" and "api_key" entries are supported, and both
+Config settings can also be read from a JSON file pointed to by the src_lisp[]{lt:*config-file*} parameter.  The
+default location is in the package directory.  Only src_lisp[]{"url"} and src_lisp[]{"api_key"} entries are supported, and both
 are optional.  The default is to not use an API key and to connect to "http://localhost:5001".
 
 *** Example Config
