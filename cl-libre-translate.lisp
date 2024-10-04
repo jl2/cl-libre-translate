@@ -84,8 +84,9 @@ content can be JSON or an alist."
 
          (json-result (read-json-from-string raw-result)))
 
-    (when-let (error-text (and (eq (type-of json-result) 'jso )
-                               (getjso "error" json-result)))
+    (when-let (error-text
+               (and (eq (type-of json-result) 'jso )
+                    (getjso "error" json-result)))
       (error error-text))
 
     json-result))
