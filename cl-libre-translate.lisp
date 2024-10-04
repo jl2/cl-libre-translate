@@ -89,7 +89,8 @@ content can be JSON or an alist."
                                              ;;   (string raw-result)
                                              ;;   (t (babel:octets-to-string raw-result)))
                                              )))
-    (cond ((getjso "error" json-result)
+    (cond ((and (eq 'jso (type-of json-result))
+                (getjso "error" json-result))
            (error (getjso "error" json-result)))
           (t
            json-result))))
