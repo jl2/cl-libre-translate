@@ -83,10 +83,12 @@ content can be JSON or an alist."
                                     :verbose *verbose-http-stream*)))
 
          (json-result (read-json-from-string raw-result)))
-    (if (and (eq (type-of json-result) 'jso )
-             (getjso "error" json-result))
-        (error (getjso "error" json-result))
-        json-result)))
+
+    (when (and (eq (type-of json-result) 'jso )
+               (getjso "error" json-result))
+      (error (getjso "error" json-result)))
+
+    json-result))
 
 (defun languages ()
   "Return the list of supported languages."
