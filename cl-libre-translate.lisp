@@ -82,16 +82,11 @@ content can be JSON or an alist."
                                     :headers content-type-headers
                                     :verbose *verbose-http-stream*)))
 
-         (json-result (read-json-from-string raw-result
-                                             ;; (typecase raw-result
-                                             ;;   (string raw-result)
-                                             ;;   (t (babel:octets-to-string raw-result)))
-                                             )))
-    (cond ((and (eq 'jso (type-of json-result))
-                (getjso "error" json-result))
-           (error (getjso "error" json-result)))
-          (t
-           json-result))))
+         (json-result (read-json-from-string raw-result)))
+    (if (and (eq (type-of json-result) 'jso )
+             (getjso "error" json-result))
+        (error (getjso "error" json-result))
+        json-result)))
 
 (defun languages ()
   "Return the list of supported languages."
