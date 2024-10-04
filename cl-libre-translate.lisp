@@ -25,18 +25,14 @@ All fields are optional and will override the defaults.~
 Only \"url\" and \"api_key\" fields are currently supported.~
 Should be JSON like {\"url\": \"http://libretranslate.com\", \"api_key\": \"....\"}")
 
-(defparameter *libre-translate-url* (if (uiop:file-exists-p *config-file*)
-                                        (with-input-from-file (ins *config-file*)
-                                          (quri:parse-uri (getjso "url" (read-json ins))))
-                                        (quri:make-uri :scheme "http"
+(defparameter *libre-translate-url* (quri:make-uri :scheme "http"
                                                        :host "localhost"
-                                                       :port 5001))
+                                                       :port 5001)
   "The URI of Libre Translate host that will be used.")
 
-(defparameter *api-key* (if (uiop:file-exists-p *config-file*)
-                            (with-input-from-file (ins *config-file*)
-                              (getjso "api_key" (read-json ins)))
-                            nil))
+(defparameter *api-key* nil
+  "The API key to use for the connection.")
+
 (defun load-config ()
   "Read *config-file*, if it exists, and populate *libre-translate-url* and~
  and *api-key* parameters if the \"url\" and \"api_key\" fields are present."
@@ -47,6 +43,8 @@ Should be JSON like {\"url\": \"http://libretranslate.com\", \"api_key\": \"....
         (setf *api-key* api-key))
       (when-let (url-string (getjso "url" config))
         (setf *libre-translate-url* (quri:parse-uri url-string))))))
+
+(load-config)
 
 (defun maybe-add-api-key (content)
   "If *api-key* is non-nil, add the API key to the request content.~
