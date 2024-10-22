@@ -14,7 +14,7 @@
 ;; OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 (asdf:defsystem #:cl-libre-translate
-  :description "A Libre Translate client."
+  :description "A Common Lisp Libre Translate client."
   :author "Jeremiah LaRocco <jeremiah_larocco@fastmail.com>"
   :license  "ISC"
   :version "0.0.1"
