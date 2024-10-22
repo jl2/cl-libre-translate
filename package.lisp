@@ -26,6 +26,8 @@
            #:*libre-translate-url*
            #:translate
            #:languages
+           #:describe-language
+           #:cached-translate
            #:suggest
            #:frontend-settings
            #:detect
