@@ -22,8 +22,8 @@
 (defparameter *config-file* (asdf:system-relative-pathname :cl-libre-translate ".config")
   "Name of an (optional) config file containing an API key and Libre Translate URL.~
 All fields are optional and will override the defaults.~
-Only \"url\" and \"api_key\" fields are currently supported.~
-Should be JSON like {\"url\": \"http://libretranslate.com\", \"api_key\": \"....\"}")
+Allowed keys are \"default-source\", \"default-target\", \"url\" and \"api-key\".~
+Should be JSON like {\"url\": \"http://libretranslate.com\", \"api-key\": \"....\"}")
 
 (defparameter *libre-translate-url* (quri:make-uri :scheme "http"
                                                        :host "localhost"
@@ -33,24 +33,43 @@ Should be JSON like {\"url\": \"http://libretranslate.com\", \"api_key\": \"....
 (defparameter *api-key* nil
   "The API key to use for the connection.")
 
+(defparameter *cache* (make-hash-table :size 100 :test 'equal)
+  "A cache to avoid Libre Translate API requests.  Set to nil to disable.")
+
+(defparameter *default-source* "auto"
+  "The default source language.")
+
+(defparameter *default-target* "es"
+  "The default target language.")
+
 (defun load-config ()
   "Read *config-file*, if it exists, and populate *libre-translate-url* and~
- and *api-key* parameters if the \"url\" and \"api_key\" fields are present."
+ and *api-key* parameters if the \"url\" and \"api-key\" fields are present."
   (when (uiop:file-exists-p *config-file*)
+
     (let ((config (with-input-from-file (ins *config-file*)
                     (read-json ins))))
-      (when-let (api-key (getjso "api_key" config))
+
+      (when-let (api-key (getjso "api-key" config))
         (setf *api-key* api-key))
+
       (when-let (url-string (getjso "url" config))
-        (setf *libre-translate-url* (quri:parse-uri url-string))))))
+        (setf *libre-translate-url* (quri:uri url-string)))
+
+      (when-let (default-target (getjso "default-target" config))
+        (setf *default-target* default-target))
+
+      (when-let (default-source (getjso "default-source" config))
+        (setf *default-source* default-source)))))
 
 (load-config)
 
 (defun maybe-add-api-key (content)
   "If *api-key* is non-nil, add the API key to the request content.~
 content can be JSON or an alist."
-  (if *api-key*
-      (let ((ak (list (cons "api_key" *api-key*))))
+  (if (and *api-key*
+           (> (length *api-key*) 0))
+      (let ((ak (list (cons "api-key" *api-key*))))
         (typecase content
           (jso (jso-from-alist (concatenate 'list
                                             (jso-to-alist content)
@@ -93,11 +112,19 @@ content can be JSON or an alist."
 
 (defun languages ()
   "Return the list of supported languages."
-  (api-req "languages"))
+  (jso-from-alist (mapcar (lambda (js)
+                            (cons (getjso "code" js) js))
+                          (api-req "languages"))))
+(defun describe-language (which-language)
+  (let ((all-languages (languages)))
+    (getjso which-language all-languages)))
+
+(defparameter *language-count* 20
+  "The number of supported languages.")
 
 (defun translate (text &key
-                         (source "en")
-                         (target "es")
+                         (source *default-source*)
+                         (target *default-target*)
                          (alternatives 3)
                          (format "text"))
   "Translate text from the source language to the target language."
@@ -115,8 +142,8 @@ content can be JSON or an alist."
 
 (defun translate-file (file-name &key
                                    (output-file-name)
-                                   (source "en")
-                                   (target "es"))
+                                   (source *default-source*)
+                                   (target *default-target*))
   "Translate a file.  If output-file-name is given, save the results to it."
   (let* ((results (api-req "translate_file"
                            :method :post

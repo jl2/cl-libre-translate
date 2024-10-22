@@ -45,9 +45,9 @@ To see the supported languages:
 Parameters (and a config file) can be used to configure the Libre Translate server and API keys.
 #+begin_src lisp :results value
   (ql:quickload :cl-libre-translate)
-  (setf lt:*libre-translate-url* "https://libretranslate.com")
-  (setf lt:*api-key* "Some API key")
-  (let ((result (lt:translate "This is a test!" :source "en" :target "es")))
+  (let* ((lt:*libre-translate-url* "https://libretranslate.com")
+         (lt:*api-key* "Some API key")
+         (result (lt:translate "This is a test!" :source "en" :target "es")))
     (st-json:getjso "translatedText" result))
 #+end_src
 
@@ -56,14 +56,15 @@ Parameters (and a config file) can be used to configure the Libre Translate serv
 
 ** Config file
 Config settings can also be read from a JSON file pointed to by the ~lt:*config-file*~ parameter.  The
-default location is in the package directory.  Only ~"url"~ and ~"api_key"~ entries are supported, and both
-are optional.  The default is to not use an API key and to connect to "http://localhost:5001".
+default location is in the package directory.  The default configuration is shown below.
 
 *** Example Config
 #+begin_src javascript
   {
-      "api_key": "SomeAPI Key",
-      "url": "https://localhost:5001"
+      "api-key": "",
+      "url": "http://localhost:5001",
+      "default-target": "es",
+      "default-source": "auto"
   }
 #+end_src
 
