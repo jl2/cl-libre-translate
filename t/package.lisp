@@ -29,40 +29,40 @@
 (test maybe-add-api-key-to-empty-list
       (let* ((lt::*api-key* "foobar")
              (results (lt::maybe-add-api-key nil)))
-        ;; Should return (list (cons "api_key" "foobar"))
-        (is-true (find "api_key" results
+        ;; Should return (list (cons "api-key" "foobar"))
+        (is-true (find "api-key" results
                        :test #'string=
                        :key #'car))
-        (is-true (string= "foobar" (assoc-value results "api_key" :test #'string=)))
+        (is-true (string= "foobar" (assoc-value results "api-key" :test #'string=)))
         (is-true (= 1 (length results)))))
 
 
 (test maybe-add-api-key-to-a-list
   (let* ((lt::*api-key* "foobar")
          (results (lt::maybe-add-api-key (list (cons "abc" "def")))))
-    ;; Should return (list (cons "api_key" "foobar"))
-    (is-true (find "api_key" results
+    ;; Should return (list (cons "api-key" "foobar"))
+    (is-true (find "api-key" results
                    :test #'string=
                    :key #'car))
     (is-true (find "abc" results
                    :test #'string=
                    :key #'car))
-    (is-true (string= "foobar" (assoc-value results "api_key" :test #'string=)))
+    (is-true (string= "foobar" (assoc-value results "api-key" :test #'string=)))
     (is-true (string= "def" (assoc-value results "abc" :test #'string=)))
     (is-true (= 2 (length results)))))
 
 (test maybe-add-api-key-to-empty-json
       (let* ((lt::*api-key* "foobar")
              (results (lt::maybe-add-api-key (jso))))
-        ;; Should return (list (cons "api_key" "foobar"))
-        (is-true (getjso "api_key" results))
-        (is-true (string= "foobar" (getjso "api_key" results)))))
+        ;; Should return (list (cons "api-key" "foobar"))
+        (is-true (getjso "api-key" results))
+        (is-true (string= "foobar" (getjso "api-key" results)))))
 
 (test maybe-add-api-key-to-json
       (let* ((lt::*api-key* "foobar")
              (results (lt::maybe-add-api-key (jso"abc" "def"))))
-        ;; Should return (list (cons "api_key" "foobar"))
-        (is-true (getjso "api_key" results))
+        ;; Should return (list (cons "api-key" "foobar"))
+        (is-true (getjso "api-key" results))
         (is-true (getjso "abc" results))
-        (is-true (string= "foobar" (getjso "api_key" results)))
+        (is-true (string= "foobar" (getjso "api-key" results)))
         (is-true (string= "def" (getjso "abc" results)))))
