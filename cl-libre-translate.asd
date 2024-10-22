@@ -17,7 +17,7 @@
   :description "A Common Lisp client for the Libre Translate API for translating between human languages.  See https://github.com/LibreTranslate/LibreTranslate to setup the Libre Translate service."
   :author "Jeremiah LaRocco <jeremiah_larocco@fastmail.com>"
   :license  "ISC"
-  :version "0.0.1"
+  :version "1.0.0"
   :serial t
 
   :depends-on (#:alexandria
