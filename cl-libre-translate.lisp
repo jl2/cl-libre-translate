@@ -184,24 +184,3 @@ content can be JSON or an alist."
                          "s" suggested
                          "source" source
                          "target" target)))
-
-;; (defclass dictionary ()
-;;   ((supported-languages :initform '("en" "es" "ar" "ru" "fr" "pt" "zh" "ja" "ko")
-;;                         :type list
-;;                         :accessor supported-languages
-;;                         :documentation "The languages included in this dictionary")
-;;    (source-language :initform "en"
-;;                     :type string
-;;                     :accessor source-language
-;;                     :documentation "The 'native' language of the source code.")
-;;    (language-mapping :initform (make-hash-table :test 'equal :size 100)
-;;                      :type hash-table
-;;                      :accessor language-mapping
-;;                      :documentation "A map of string -> hash-table where each hash-table maps a language ID to translated strings."
-;;                      ))
-;;   (:documentation "A dictionary for storing strings translated to many languages."))
-
-;; (defun translate-string (dictionary text output-language)
-;;   (with-slots (language-mapping) dictionary
-;;     (when-let ) (gethash text language-mapping)))
-
