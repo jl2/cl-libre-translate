@@ -110,14 +110,30 @@ content can be JSON or an alist."
 
     json-result))
 
+
 (defun languages ()
   "Return the list of supported languages."
   (jso-from-alist (mapcar (lambda (js)
                             (cons (getjso "code" js) js))
                           (api-req "languages"))))
+
+(defun show-languages (&optional (stream t))
+  (flet
+      ((format-language (code description)
+         (let ((name-code (format nil
+                                  "~a (~a)"
+                                  (getjso "name" description)
+                                  code)))
+           (format stream "~a~%" name-code)
+           name-code)))
+    (declare (inline format-language languages))
+    (mapjso #'format-language
+            (languages))))
+
 (defun describe-language (which-language)
   (let ((all-languages (languages)))
     (getjso which-language all-languages)))
+
 
 (defparameter *language-count* 20
   "The number of supported languages.")
