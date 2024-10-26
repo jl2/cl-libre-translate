@@ -19,36 +19,83 @@ Once the service has downloaded all of the language files, use the library to tr
     (ql:quickload :cl-libre-translate)
     (use-package :st-json)
     (let ((result (lt:translate "This is a test!" :source "en" :target "zt")))
-      (st-json:getjso "translatedText" result))
+      (getjso "translatedText" result))
 #+end_src
 
 #+RESULTS:
 : 有考驗了!
 
 To see the supported languages:
-#+begin_src lisp :results value
+#+begin_src lisp :results output
   (ql:quickload :cl-libre-translate)
-  (use-package :alexandria)
   (use-package :st-json)
-  (mapcar (lambda (lang)
-            (format nil
-                    "~a (~a)"
-                    (getjso "name" lang)
-                    (getjso "code" lang)))
-          (lt:languages))
+  (lt:show-languages)
 #+end_src
 
 #+RESULTS:
-| English (en) | Albanian (sq) | Arabic (ar) | Azerbaijani (az) | Basque (eu) | Bengali (bn) | Bulgarian (bg) | Catalan (ca) | Chinese (zh) | Chinese (traditional) (zt) | Czech (cs) | Danish (da) | Dutch (nl) | Esperanto (eo) | Estonian (et) | Finnish (fi) | French (fr) | Galician (gl) | German (de) | Greek (el) | Hebrew (he) | Hindi (hi) | Hungarian (hu) | Indonesian (id) | Irish (ga) | Italian (it) | Japanese (ja) | Korean (ko) | Latvian (lv) | Lithuanian (lt) | Malay (ms) | Norwegian (nb) | Persian (fa) | Polish (pl) | Portuguese (pt) | Romanian (ro) | Russian (ru) | Slovak (sk) | Slovenian (sl) | Spanish (es) | Swedish (sv) | Tagalog (tl) | Thai (th) | Turkish (tr) | Ukranian (uk) | Urdu (ur) |
+#+begin_example
+To load "cl-libre-translate":
+  Load 1 ASDF system:
+    cl-libre-translate
+; Loading "cl-libre-translate"
+
+Urdu (ur)
+Ukranian (uk)
+Turkish (tr)
+Thai (th)
+Tagalog (tl)
+Swedish (sv)
+Spanish (es)
+Slovenian (sl)
+Slovak (sk)
+Russian (ru)
+Romanian (ro)
+Portuguese (pt)
+Polish (pl)
+Persian (fa)
+Norwegian (nb)
+Malay (ms)
+Lithuanian (lt)
+Latvian (lv)
+Korean (ko)
+Japanese (ja)
+Italian (it)
+Irish (ga)
+Indonesian (id)
+Hungarian (hu)
+Hindi (hi)
+Hebrew (he)
+Greek (el)
+German (de)
+Galician (gl)
+French (fr)
+Finnish (fi)
+Estonian (et)
+Esperanto (eo)
+Dutch (nl)
+Danish (da)
+Czech (cs)
+Chinese (traditional) (zt)
+Chinese (zh)
+Catalan (ca)
+Bulgarian (bg)
+Bengali (bn)
+Basque (eu)
+Azerbaijani (az)
+Arabic (ar)
+Albanian (sq)
+English (en)
+#+end_example
 
 
 Parameters (and a config file) can be used to configure the Libre Translate server and API keys.
 #+begin_src lisp :results value
   (ql:quickload :cl-libre-translate)
+  (use-package :st-json)
   (let* ((lt:*libre-translate-url* "https://libretranslate.com")
          (lt:*api-key* "Some API key")
          (result (lt:translate "This is a test!" :source "en" :target "es")))
-    (st-json:getjso "translatedText" result))
+    (getjso "translatedText" result))
 #+end_src
 
 #+RESULTS:
@@ -77,4 +124,3 @@ and I'll try to fix them.  A PR fixing the problem would also be welcome.
 ISC
 
 Copyright (c) 2024 Jeremiah LaRocco <jeremiah_larocco@fastmail.com>
-
