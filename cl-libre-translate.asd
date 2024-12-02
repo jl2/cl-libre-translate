@@ -23,7 +23,8 @@
   :depends-on (#:alexandria
                #:st-json
                #:dexador
-               #:uiop)
+               #:uiop
+               #:trivial-clipboard)
 
   :components ((:file "package")
                (:file "main")

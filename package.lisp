@@ -25,6 +25,7 @@
            #:*api-key*
            #:*libre-translate-url*
            #:translate
+           #:translate-clipboard
            #:languages
            #:show-languages
            #:describe-language

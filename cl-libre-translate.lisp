@@ -39,7 +39,13 @@ Should be JSON like {\"url\": \"http://libretranslate.com\", \"api-key\": \"....
 (defparameter *default-source* "auto"
   "The default source language.")
 
-(defparameter *default-target* "es"
+(defparameter *default-target* "en"
+  "The default target language.")
+
+(defparameter *default-file-source* "es"
+  "The default source language.")
+
+(defparameter *default-file-target* "en"
   "The default target language.")
 
 (defun load-config ()
@@ -60,6 +66,12 @@ Should be JSON like {\"url\": \"http://libretranslate.com\", \"api-key\": \"....
         (setf *default-target* default-target))
 
       (when-let (default-source (getjso "default-source" config))
+        (setf *default-source* default-source))
+
+      (when-let (default-source (getjso "default-file-target" config))
+        (setf *default-source* default-source))
+
+      (when-let (default-source (getjso "default-file-source" config))
         (setf *default-source* default-source)))))
 
 (load-config)
@@ -118,6 +130,7 @@ content can be JSON or an alist."
                           (api-req "languages"))))
 
 (defun show-languages (&optional (stream t))
+  "Write the list of supported languages, one per line, to stream."
   (flet
       ((format-language (code description)
          (let ((name-code (format nil
@@ -126,7 +139,6 @@ content can be JSON or an alist."
                                   code)))
            (format stream "~a~%" name-code)
            name-code)))
-    (declare (inline format-language languages))
     (mapjso #'format-language
             (languages))))
 
@@ -138,18 +150,37 @@ content can be JSON or an alist."
 (defparameter *language-count* 20
   "The number of supported languages.")
 
-(defun translate (text &key
-                         (source *default-source*)
-                         (target *default-target*)
-                         (alternatives 3)
-                         (format "text"))
+(defun translate (text
+                  &key
+                    (source *default-source*)
+                    (target *default-target*)
+                    (alternatives 3)
+                    (full nil)
+                    (format "text"))
   "Translate text from the source language to the target language."
-  (api-req "translate" :method :post
-                       :content (jso "q" text
-                                     "source" source
-                                     "target" target
-                                     "alternatives" alternatives
-                                     "format" format)))
+  (let ((result (api-req "translate" :method :post
+                                     :content (jso "q" text
+                                                   "source" source
+                                                   "target" target
+                                                   "alternatives" alternatives
+                                                   "format" format))))
+    (if full
+        result
+        (getjso "translatedText" result))))
+
+(defun translate-clipboard (&rest keys
+                            &key
+                              (source *default-source*)
+                              (target *default-target*)
+                              (full nil)
+                              (format "text"))
+  (declare (ignorable source target format full))
+  "Like translate, but uses trivial-clipboard to read the clipboard (supports xsel, xclip, and wayland)."
+  (let ((full-text (concatenate 'string (trivial-clipboard:text nil))))
+    (values (apply #'translate
+                   full-text
+                   keys)
+            full-text)))
 
 (defun cached-translate (text &key
                          (source *default-source*)
@@ -177,8 +208,9 @@ content can be JSON or an alist."
 
 (defun translate-file (file-name &key
                                    (output-file-name)
-                                   (source *default-source*)
-                                   (target *default-target*))
+                                   (source *default-file-source*)
+                                   (target *default-file-target*)
+                                   (open-it t))
   "Translate a file.  If output-file-name is given, save the results to it."
   (let* ((results (api-req "translate_file"
                            :method :post
@@ -187,7 +219,10 @@ content can be JSON or an alist."
                                           (cons "target" target))))
          (download-url (getjso "translatedFileUrl" results)))
     (when output-file-name
-      (dex:fetch download-url output-file-name))
+      (dex:fetch download-url output-file-name :if-exists :supersede))
+    #+swank
+    (when (and output-file-name open-it)
+      (swank:eval-in-emacs `(find-file-other-window ,output-file-name) t))
     results))
 
 (defun frontend-settings ()
