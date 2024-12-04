@@ -26,14 +26,15 @@ Allowed keys are \"default-source\", \"default-target\", \"url\" and \"api-key\"
 Should be JSON like {\"url\": \"http://libretranslate.com\", \"api-key\": \"....\"}")
 
 (defparameter *libre-translate-url* (quri:make-uri :scheme "http"
-                                                       :host "localhost"
-                                                       :port 5001)
+                                                   :host "localhost"
+                                                   :port 5001)
   "The URI of Libre Translate host that will be used.")
 
 (defparameter *api-key* nil
   "The API key to use for the connection.")
 
-(defparameter *cache* (make-hash-table :size 100 :test 'equal)
+(defparameter *cache* (make-hash-table :size 100
+                                       :test 'equal)
   "A cache to avoid Libre Translate API requests.  Set to nil to disable.")
 
 (defparameter *default-source* "auto"
@@ -43,38 +44,30 @@ Should be JSON like {\"url\": \"http://libretranslate.com\", \"api-key\": \"....
   "The default target language.")
 
 (defparameter *default-file-source* "es"
-  "The default source language.")
+  "The default source language for file translation.")
 
 (defparameter *default-file-target* "en"
-  "The default target language.")
+  "The default target language for file translation.")
 
-(defun load-config ()
+
+(defun load-config (&optional (config-file-name *config-file*))
   "Read *config-file*, if it exists, and populate *libre-translate-url* and~
  and *api-key* parameters if the \"url\" and \"api-key\" fields are present."
-  (when (uiop:file-exists-p *config-file*)
+  (when (uiop:file-exists-p config-file-name)
 
-    (let ((config (with-input-from-file (ins *config-file*)
-                    (read-json ins))))
+    (macrolet ((pref-read (key var &optional translator)
+                 `(when-let (val (getjso ,key config))
+                    (setf ,var (if ,translator (funcall ,translator val) val)))))
+      (let ((config (with-input-from-file (ins config-file-name)
+                      (read-json ins))))
+        (pref-read "api-key" *api-key*)
+        (pref-read "url" *libre-translate-url* #'quri:uri)
+        (pref-read "default-target" *default-target*)
+        (pref-read "default-source" *default-source*)
+        (pref-read "default-file-target" *default-target*)
+        (pref-read "default-file-source" *default-source*)))))
 
-      (when-let (api-key (getjso "api-key" config))
-        (setf *api-key* api-key))
-
-      (when-let (url-string (getjso "url" config))
-        (setf *libre-translate-url* (quri:uri url-string)))
-
-      (when-let (default-target (getjso "default-target" config))
-        (setf *default-target* default-target))
-
-      (when-let (default-source (getjso "default-source" config))
-        (setf *default-source* default-source))
-
-      (when-let (default-source (getjso "default-file-target" config))
-        (setf *default-source* default-source))
-
-      (when-let (default-source (getjso "default-file-source" config))
-        (setf *default-source* default-source)))))
-
-(load-config)
+(load-config *config-file*)
 
 (defun maybe-add-api-key (content)
   "If *api-key* is non-nil, add the API key to the request content.~
