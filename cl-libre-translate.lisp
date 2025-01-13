@@ -159,7 +159,14 @@ content can be JSON or an alist."
                                                    "format" format))))
     (if full
         result
-        (getjso "translatedText" result))))
+        (if (string= source "auto")
+            (values
+             (getjso "translatedText" result)
+             (getjso* "detectedLanguage.language" result)
+             target)
+            (values (getjso "translatedText" result)
+                    source
+                    target)))))
 
 (defun translate-clipboard (&rest keys
                             &key
