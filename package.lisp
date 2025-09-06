@@ -35,4 +35,7 @@
            #:detect
            #:translate-file
            #:load-config
+           #:start-docker-service
+           #:stop-docker-service
+           #:restart-docker-service
            #:main))

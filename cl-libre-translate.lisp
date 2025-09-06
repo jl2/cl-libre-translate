@@ -192,10 +192,10 @@ content can be JSON or an alist."
       (when translated
         (return-from cached-translate translated))
       (let ((translated-text (getjso "translatedText" (translate text
-                                                :alternatives 0
-                                                :source source
-                                                :target target
-                                                :format format))))
+                                                                 :alternatives 0
+                                                                 :source source
+                                                                 :target target
+                                                                 :format format))))
         (setf (gethash target text-hash) translated-text)
         (setf (gethash text *cache*) text-hash)
         translated-text))))
@@ -235,3 +235,48 @@ content can be JSON or an alist."
                          "s" suggested
                          "source" source
                          "target" target)))
+
+(defparameter *lt-container-info* nil)
+
+(defun start-docker-service (&key
+                               (container-name "lisp-libre-transate-service")
+                               (libre-translate-directory '(:absolute :home "oss_src" "LibreTranslate"))
+                               (port 5001))
+  (when *lt-container-info*
+    (error "Service already started! (container ~a)" (car *lt-container-info*)))
+
+  (let* ((cmd (format nil "docker run ~a -p 5000:~a" container-name port))
+         (directory (make-pathname :directory libre-translate-directory)))
+    (uiop:with-current-directory (directory)
+      (format t "running ~s in directory ~s" cmd directory)
+      (setf *lt-container-info*
+            (list container-name
+                  directory
+                  (uiop:launch-program cmd
+                                       :force-shell t
+                                       :output t
+                                       :error-output t))))))
+  
+
+(defun stop-docker-service ()
+  (when *lt-container-info*
+    (let* ((cmd
+           (format nil
+                   "docker stop ~s"
+                   (car *lt-container-info*))))
+    (uiop:with-current-directory ((cadr *lt-container-info*))
+      (format t "running ~s in directory ~s" cmd (cadr *lt-container-info*))
+      (uiop:launch-program cmd
+                           :force-shell t
+                           :output t
+                           :error-output t)
+      (setf *lt-container-info*
+            nil)))))
+
+
+(defun restart-docker-service (&key
+                                 (libre-translate-directory '(:absolute :home "oss_src" "LibreTranslate"))
+                                 (port 5001))
+  (stop-docker-service)
+  (start-docker-service :libre-translate-directory libre-translate-directory
+                        :port port))
