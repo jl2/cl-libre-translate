@@ -50,6 +50,25 @@ Should be JSON like {\"url\": \"http://libretranslate.com\", \"api-key\": \"....
   "The default target language for file translation.")
 
 
+(defun jso-from-alist (vals)
+  "Construct a jso directly with an existing alist"
+  (st-json::make-jso :alist vals))
+
+(defun jso-to-alist (jso-val)
+  "Recursively build an alist from jso-val"
+  (typecase jso-val
+    (jso (collect (lambda (key val)
+                    (cons key
+                          (jso-to-alist val)))
+           jso-val))
+    (t jso-val)))
+
+(defun collect (func map)
+  "Like mapjso, but returning the results.
+   Returns a list with the results of calling func on each key/value pair in a JS object."
+  (loop :for (key . val) :in (st-json::jso-alist map)
+        :collect (funcall func key val)))
+
 (defun load-config (&optional (config-file-name *config-file*))
   "Read *config-file*, if it exists, and populate *libre-translate-url* and~
  and *api-key* parameters if the \"url\" and \"api-key\" fields are present."
@@ -132,8 +151,7 @@ content can be JSON or an alist."
                                   code)))
            (format stream "~a~%" name-code)
            name-code)))
-    (mapjso #'format-language
-            (languages))))
+    (collect #'format-language (languages))))
 
 (defun describe-language (which-language)
   (let ((all-languages (languages)))
